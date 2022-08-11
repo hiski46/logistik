@@ -495,9 +495,9 @@ class Auth extends \CodeIgniter\Controller
 		$this->validation->setRule('last_name', lang('Auth.create_user_validation_lname_label'), 'trim|required');
 		if ($identityColumn !== 'email') {
 			$this->validation->setRule('identity', lang('Auth.create_user_validation_identity_label'), 'trim|required|is_unique[' . $tables['users'] . '.' . $identityColumn . ']');
-			$this->validation->setRule('email', lang('Auth.create_user_validation_email_label'), 'trim|required|valid_email');
+			$this->validation->setRule('email', lang('Auth.create_user_validation_email_label'), 'trim|required');
 		} else {
-			$this->validation->setRule('email', lang('Auth.create_user_validation_email_label'), 'trim|required|valid_email|is_unique[' . $tables['users'] . '.email]');
+			$this->validation->setRule('email', lang('Auth.create_user_validation_email_label'), 'trim|required|is_unique[' . $tables['users'] . '.email]');
 		}
 		$this->validation->setRule('phone', lang('Auth.create_user_validation_phone_label'), 'trim');
 		$this->validation->setRule('company', lang('Auth.create_user_validation_company_label'), 'trim');
@@ -520,7 +520,7 @@ class Auth extends \CodeIgniter\Controller
 			// check to see if we are creating the user
 			// redirect them back to the admin page
 			$this->session->setFlashdata('message', $this->ionAuth->messages());
-			return redirect()->to('/auth');
+			return redirect()->to('dashboard/managementUser');
 		} else {
 			// display the create user form
 			// set the flash data error message if there is one
@@ -547,7 +547,7 @@ class Auth extends \CodeIgniter\Controller
 			$this->data['email'] = [
 				'name'  => 'email',
 				'id'    => 'email',
-				'type'  => 'email',
+				'type'  => 'text',
 				'value' => set_value('email'),
 			];
 			$this->data['company'] = [
@@ -616,7 +616,7 @@ class Auth extends \CodeIgniter\Controller
 		$this->data['title'] = lang('Auth.edit_user_heading');
 
 		if (!$this->ionAuth->loggedIn() || (!$this->ionAuth->isAdmin() && !($this->ionAuth->user()->row()->id == $id))) {
-			return redirect()->to('/auth');
+			return redirect()->to('dashboard');
 		}
 
 		$user          = $this->ionAuth->user($id)->row();
@@ -676,7 +676,8 @@ class Auth extends \CodeIgniter\Controller
 					$this->session->setFlashdata('message', $this->ionAuth->errors($this->validationListTemplate));
 				}
 				// redirect them back to the admin page if admin, or to the base url if non admin
-				return $this->redirectUser();
+				// return $this->redirectUser();
+				return redirect()->to('dashboard/managementUser');
 			}
 		}
 

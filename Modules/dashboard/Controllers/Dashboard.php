@@ -18,6 +18,7 @@ class Dashboard extends BaseController
     protected $Modelrequest;
     protected $Modeluser;
     protected $Modelkeranjangrequest;
+    protected $Modelcheckout;
 
     function __construct()
     {
@@ -29,6 +30,7 @@ class Dashboard extends BaseController
         $this->Modelrequest = new \Modules\dashboard\Models\ModelRequest();
         $this->Modeluser = new \Modules\dashboard\Models\ModelUser();
         $this->Modelkeranjangrequest = new \Modules\dashboard\Models\ModelKeranjangRequest();
+        $this->Modelcheckout = new \Modules\dashboard\Models\ModelCheckout();
         if ($this->ionAuth->loggedIn()) {
             $this->group_name = $this->ionAuthModel->getUsersGroups()->getResultArray()[0]['name'];
         }
@@ -39,7 +41,7 @@ class Dashboard extends BaseController
         $data['html'] = $html;
         $data['is_admin'] = $this->ionAuth->isAdmin();
         if ($this->ionAuth->loggedIn()) {
-            $user = $this->Modeluser->select('first_name, last_name')->find($this->ionAuth->getUserId());
+            $user = $this->Modeluser->find($this->ionAuth->getUserId());
             $data['user'] = $user['first_name'] . ' ' . $user['last_name'];
         }
         echo view($this->view . '\index', $data);
@@ -50,7 +52,7 @@ class Dashboard extends BaseController
         if (!$this->ionAuth->loggedIn()) {
             return redirect()->to('/auth/login');
         }
-        $this->rander(view("$this->view\dashboard"));
+        $this->profile();
     }
 
     public function managementUser()
@@ -94,5 +96,11 @@ class Dashboard extends BaseController
             $name = $user['first_name'] . ' ' . $user['last_name'];
             return $name;
         }
+    }
+
+    public function profile()
+    {
+        $data['user'] = $this->Modeluser->find($this->ionAuth->getUserId());
+        return $this->rander(view("$this->view\profile", $data));
     }
 }
