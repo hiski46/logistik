@@ -61,5 +61,6 @@
 <?php echo form_hidden('id', $user->id); ?>
 
 <p><?php echo form_submit('submit', lang('Auth.edit_user_submit_btn')); ?></p>
+<p><a class="btn btn-danger" href="<?= base_url('dashboard/deleteUser/' . $user->id) ?>">Hapus User</a></p>
 
 <?php echo form_close(); ?>

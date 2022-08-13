@@ -19,6 +19,8 @@
                     <th>Tanggal</th>
                     <th>Keranjang</th>
                     <th>Status Approval</th>
+                    <th>Status Checkout</th>
+                    <?= ($group_name == 'admin') ? '<th>Aksi</th>' : null ?>
                 </tr>
             </thead>
         </table>
@@ -47,5 +49,32 @@
                 $('.modal').modal('show');
             },
         })
+    }
+
+    function tambahCheckout(id) {
+        $.ajax({
+            url: "<?= base_url('checkout/formTambahCheckout') ?>/" + id,
+            method: 'GET',
+            success: function(data) {
+                $('.modal').html(data);
+                $('.modal').modal('show');
+            }
+        })
+    }
+
+
+    function checkout(id) {
+        $.ajax({
+            url: "<?= base_url('checkout/save') ?>/" + id,
+            method: 'GET',
+            success: function(data) {
+                $('.modal').html(data);
+                $('.modal').modal('show');
+            }
+        })
+    }
+
+    function refresh() {
+        location.reload();
     }
 </script>

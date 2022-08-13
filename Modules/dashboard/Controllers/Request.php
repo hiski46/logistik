@@ -75,7 +75,7 @@ class Request extends Dashboard
         $material = $this->Modelmaterial->findAll();
         $arrayMaterial = [];
         foreach ($material as $m) {
-            $arrayMaterial[$m['id']] = $m['material'];
+            $arrayMaterial[$m['id']] = $m['material'] . ' || ' . $m['stok'];
         }
         // dd($arrayMaterial);
         $html = '';
@@ -114,6 +114,7 @@ class Request extends Dashboard
             'tanggal' => (int)$tanggal
         ];
         $data_keranjang = json_decode($keranjang);
+
         $save_id = $this->Modelrequest->insert($data);
         if ($save_id) {
             foreach ($data_keranjang as $dk) {
@@ -213,14 +214,16 @@ class Request extends Dashboard
         } else if ($this->group_name == 'supervisor' || $this->group_name == 'admin') {
             $request = $this->Modelrequest->where('approval', 'yes')->orWhere('approval', 'no')->findAll();
         }
+
         if ($request) {
             foreach ($request as $r) {
-
                 $list_array[] = [
                     $this->getName($r['request_by']),
                     date('l, d F Y', $r['tanggal']),
                     form_button(['type' => 'button', 'class' => 'btn btn-sm btn-success', 'onclick' => 'keranjang(' . $r['id'] . ')'], '<small><i class="fa-solid fa-cart-shopping"></i></small>'),
                     ($r['approval'] == 'yes') ? '<span class="badge bg-primary">Approved</span>' : '<span class="badge bg-danger">Rejected</span>',
+                    ($r['checkout'] == 'yes') ? '<span class="badge bg-primary">Done</span>' : '<span class="badge bg-warning">Procces</span>',
+                    ($this->ionAuth->isAdmin() && $r['checkout'] != 'yes') ? '<button onclick="tambahCheckout(' . $r['id'] . ')" class="btn btn-sm btn-primary"><small>Checkout</small></button>' : '',
                 ];
             }
         }

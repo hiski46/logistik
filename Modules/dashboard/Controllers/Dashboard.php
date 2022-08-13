@@ -103,4 +103,9 @@ class Dashboard extends BaseController
         $data['user'] = $this->Modeluser->find($this->ionAuth->getUserId());
         return $this->rander(view("$this->view\profile", $data));
     }
+    public function deleteUser($id)
+    {
+        $this->Modeluser->delete($id);
+        return redirect()->to('dashboard/managementUser');
+    }
 }

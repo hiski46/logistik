@@ -8,5 +8,5 @@ class ModelRequest extends Model
 {
     protected $table = 'request';
 
-    protected $allowedFields = ['request_by', 'tanggal', 'approval'];
+    protected $allowedFields = ['request_by', 'tanggal', 'approval', 'checkout'];
 }

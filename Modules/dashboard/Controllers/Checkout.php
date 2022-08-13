@@ -44,44 +44,88 @@ class Checkout extends Dashboard
         echo json_encode($data);
     }
 
-    public function formTambahCheckout()
+    public function formTambahCheckout($id_request)
     {
         $data['material'] = $this->list_material;
+        $req = $this->Modelrequest->find($id_request);
+        $keranjang = $this->Modelkeranjangrequest->where('request', $id_request)->findAll();
+
+        foreach ($keranjang as $k) {
+            $material = $this->list_material[$k['material']];
+            if ($material['stok'] < $k['jumlah']) {
+                $title = "Checkout Gagal";
+                $pesan = "Stok " . $material['material'] . " tidak cukup. Jumlah request <b>" . $k['jumlah'] . "</b>, Jumlah Stok <b>" . $material['stok'] . "</b>";
+                $action = 'void(0)';
+                $color = "danger";
+                break;
+            } else {
+                $title = "Checkout";
+                $pesan = "Apakah anda yakin ingin melakuakan Checkout?";
+                $action = "checkout($id_request)";
+                $color = "primary";
+            }
+        }
         return $this->modal(
-            'Tambah Checkout',
-            view($this->view . '\form\form_tambah_checkout', $data),
-            'save()',
-            'primary',
-            'simpan',
+            $title,
+            $pesan,
+            $action,
+            $color,
+            'OK',
             'modal-lg'
         );
     }
 
-    public function save()
+    public function save($id_request)
     {
-        $material_id = $this->request->getPost('material');
-        $stok_awal = $this->list_material[$material_id]['stok'];
-        $jumlah = $this->request->getPost('jumlah');
-        $stok_akhir = $stok_awal - $jumlah;
+        // $material_id = $this->request->getPost('material');
+        // $stok_awal = $this->list_material[$material_id]['stok'];
+        // $jumlah = $this->request->getPost('jumlah');
+        // $stok_akhir = $stok_awal - $jumlah;
+        $req = $this->Modelrequest->find($id_request);
+        $keranjang = $this->Modelkeranjangrequest->where('request', $id_request)->findAll();
         $tanggal = time();
+        foreach ($keranjang as $k) {
+            $material = $this->list_material[$k['material']];
+            $material_id = $k['material'];
+            $stok_awal = $material['stok'];
+            $jumlah = $k['jumlah'];
+            $stok_akhir = $stok_awal - $jumlah;
+            if ($stok_akhir < 0) {
+                return $this->modal(
+                    'Checkout Gagal',
+                    "Stok " . $material['material'] . " tidak cukup. Jumlah request <b>" . $k['jumlah'] . "</b>, Jumlah Stok <b>" . $material['stok'] . "</b>",
+                    'void(0)',
+                    'danger',
+                    'Oke',
+                    'modal-md'
+                );
+                break;
+            }
+            $data = [
+                'material_id' => $material_id,
+                'nama_material' => $material['material'],
+                'jumlah' => $jumlah,
+                'stok_awal' => $stok_awal,
+                'stok_akhir' => $stok_akhir,
+                'tanggal' => $tanggal,
+            ];
+            $this->Modelcheckout->save($data);
 
-        if ($stok_akhir < 0) {
-            return redirect()->to('checkout');
+            $stok['stok'] = $stok_akhir;
+            $this->Modelmaterial->update($material_id, $stok);
+
+            $status_checkout_request['checkout'] = "yes";
+            $this->Modelrequest->update($id_request, $status_checkout_request);
         }
 
-        $data = [
-            'material_id' => $material_id,
-            'jumlah' => $jumlah,
-            'stok_awal' => $stok_awal,
-            'stok_akhir' => $stok_akhir,
-            'tanggal' => $tanggal,
-        ];
-
-        $this->Modelcheckout->save($data);
-
-        $stok['stok'] = $stok_akhir;
-        $this->Modelmaterial->update($material_id, $stok);
-        return redirect()->to('checkout');
+        return $this->modal(
+            'Checkout berhasil',
+            "Checkout berhasil",
+            'refresh()',
+            'primary',
+            'Oke',
+            'modal-md'
+        );
     }
 
     public function getMaterial()

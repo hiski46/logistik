@@ -5,9 +5,9 @@
         <div class="float-start">
             <h5>History Checkout</h5>
         </div>
-        <div class="float-end">
+        <!-- <div class="float-end">
             <button onclick="tambahCheckout()" class="btn btn-sm btn-primary">Tambah</button>
-        </div>
+        </div> -->
     </div>
     <div class="card-body">
         <table id="table-checkout" class="stripe hover">
